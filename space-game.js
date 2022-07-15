@@ -33,16 +33,17 @@
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    function byID(e) {
-        return document.getElementById(e);
+    function byID(id) {
+        return document.getElementById(id);
+    }
+
+    function byQ(q) {
+        return document.querySelector(q);
     }
 
     function Sprite(sprite_object_spec) {
 
         let {
-            image_file,
-            image_width,
-            image_height,
             start_left,
             start_top,
             does_disappear
@@ -57,13 +58,21 @@
         // these values never change
 
         const _disappears = does_disappear;
-        const _width = image_width;
-        const _height = image_height;
-        const _img = document.createElement("img");
 
-        _img.src = image_file;
+        const _img = new Image();
+
+        let _width = 0;
+        let _height = 0;
 
         let sprite = {};
+
+        sprite.setImage = function (image_file, image_width) {
+            _img.src = image_file;
+            _img.onload = function() {
+                _width = _img.naturalWidth;
+                _height =  _img.naturalHeight;
+            };
+        }
 
         sprite.visible = function () {
             return _visible;
@@ -164,17 +173,11 @@
         const ship_top = getRandomInt(0, byID("gameboard").clientHeight);
         let ship = new Sprite(
             {
-                image_file: ship_file,
-                image_width: 150,
-                image_height: 78,
                 start_left: ship_left,
                 start_top: ship_top
             }
         );
-
-        const _img = document.createElement("img");
-
-        _img.src = "images/player.png";
+        ship.setImage(ship_file);
 
         return ship;
     }
@@ -251,14 +254,14 @@
         const bullet_image = "images/bullet.png";
         let bullet = new Sprite(
             {
-                image_file: bullet_image,
-                image_width: 36,
-                image_height: 36,
                 start_left: 0,
                 start_top: 0,
                 does_disappear: true
             }
         );
+
+        bullet.setImage(bullet_image);
+
         let _direction = "";
 
         bullet.direction = function (value) {
